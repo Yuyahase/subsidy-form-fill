@@ -13,15 +13,23 @@ const SHEET_NAME = 'Form Responses';
 function doPost(e: GoogleAppsScript.Events.DoPost): GoogleAppsScript.Content.TextOutput {
   try {
     const data = JSON.parse(e.postData.contents);
-    const action = data.action;
     
-    switch (action) {
-      case 'appendRow':
-        return handleAppendRow(data);
-      case 'checkEmail':
-        return handleCheckEmail(data.email);
-      default:
-        return createResponse({ error: 'Invalid action' }, 400);
+    // Handle both old format (with action) and new format (direct form data)
+    if (data.action) {
+      // Old format with explicit action
+      switch (data.action) {
+        case 'appendRow':
+          return handleAppendRow(data);
+        case 'checkEmail':
+          return handleCheckEmail(data.email);
+        default:
+          return createResponse({ error: 'Invalid action' }, 400);
+      }
+    } else if (data.entityType) {
+      // New format: direct form data from frontend
+      return handleFormSubmission(data);
+    } else {
+      return createResponse({ error: 'Invalid request format' }, 400);
     }
   } catch (error) {
     console.error('Error in doPost:', error);
@@ -42,6 +50,50 @@ function doGet(e: GoogleAppsScript.Events.DoGet): GoogleAppsScript.Content.TextO
       return handleCheckEmail(e.parameter.email);
     default:
       return createResponse({ status: 'OK', message: 'Service is running' }, 200);
+  }
+}
+
+/**
+ * Handle form submission from frontend (new format)
+ */
+function handleFormSubmission(formData: any): GoogleAppsScript.Content.TextOutput {
+  try {
+    // Transform form data to array format for spreadsheet
+    const rowData = [
+      new Date().toISOString(), // timestamp
+      formData.entityType, // 法人種別
+      formData.company.name, // 会社名
+      formData.company.nameKana, // 会社名フリガナ
+      formData.representative.lastName, // 代表者氏
+      formData.representative.firstName, // 代表者名
+      formData.representative.lastNameKana, // 代表者氏フリガナ
+      formData.representative.firstNameKana, // 代表者名フリガナ
+      formData.primaryAddress.postalCode, // 所在地1郵便番号
+      formData.primaryAddress.prefecture, // 所在地1都道府県
+      formData.primaryAddress.city, // 所在地1市区町村
+      formData.primaryAddress.street, // 所在地1番地以降
+      formData.secondaryAddress?.postalCode || '', // 所在地2郵便番号
+      formData.secondaryAddress?.prefecture || '', // 所在地2都道府県
+      formData.secondaryAddress?.city || '', // 所在地2市区町村
+      formData.secondaryAddress?.street || '', // 所在地2番地以降
+      formData.employeeCount, // 労働者数
+      formData.applicationMethod, // 申請方法
+      formData.contact.lastName, // 担当者氏
+      formData.contact.firstName, // 担当者名
+      formData.contact.lastNameKana, // 担当者氏フリガナ
+      formData.contact.firstNameKana, // 担当者名フリガナ
+      formData.contact.phone, // 担当者電話番号
+      formData.contact.email, // 担当者メールアドレス
+      formData.agent || '', // 代理人氏名
+      formData.applicationReason // 申請理由
+    ];
+    
+    // Use existing handleAppendRow logic
+    return handleAppendRow({ data: rowData, sendEmail: true });
+    
+  } catch (error) {
+    console.error('Error handling form submission:', error);
+    return createResponse({ error: error.toString() }, 500);
   }
 }
 
@@ -209,10 +261,27 @@ ${contactLastName} ${contactFirstName} 様
 }
 
 /**
- * Create JSON response
+ * Create JSON response with CORS headers
  */
 function createResponse(data: any, statusCode: number): GoogleAppsScript.Content.TextOutput {
-  return ContentService
+  const output = ContentService
     .createTextOutput(JSON.stringify(data))
     .setMimeType(ContentService.MimeType.JSON);
+    
+  // Add CORS headers to allow cross-origin requests
+  output.setHeaders({
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Max-Age': '86400'
+  });
+  
+  return output;
+}
+
+/**
+ * Handle OPTIONS requests for CORS preflight
+ */
+function doOptions(): GoogleAppsScript.Content.TextOutput {
+  return createResponse({ status: 'OK' }, 200);
 }
