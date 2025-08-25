@@ -1,0 +1,16 @@
+{
+  "name": "subsidy-form-automation",
+  "version": "1.0.0",
+  "description": "東京都働きやすい職場環境づくり推進奨励金 フォーム自動入力",
+  "scripts": {
+    "fill": "npx tsx fillForm.ts",
+    "fill:json": "npx tsx fillFormFromJson.ts",
+    "install:playwright": "npx playwright install chromium"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "playwright": "^1.40.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0"
+  }
+}

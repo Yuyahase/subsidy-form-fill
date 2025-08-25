@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.app.json",
+  "compilerOptions": {
+    "skipLibCheck": true
+  },
+  "include": ["src"],
+  "exclude": [
+    "src/utils/fillForm.ts",
+    "src/utils/fillFormFromJson.ts", 
+    "src/utils/formFiller.ts",
+    "src/utils/formFillerFunctions.ts",
+    "src/**/*.test.ts",
+    "src/**/*.test.tsx"
+  ]
+}
