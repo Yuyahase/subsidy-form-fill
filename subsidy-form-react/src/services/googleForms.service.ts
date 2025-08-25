@@ -10,11 +10,7 @@ import type {
 
 // Service configuration
 const SERVICE_CONFIG = {
-  SHEETS_API_ENDPOINT: import.meta.env.VITE_SHEETS_API_ENDPOINT || '',
-  GOOGLE_CLIENT_ID: import.meta.env.VITE_GOOGLE_CLIENT_ID || '',
-  GOOGLE_API_KEY: import.meta.env.VITE_GOOGLE_API_KEY || '',
-  FORM_ID: import.meta.env.VITE_GOOGLE_FORM_ID || '',
-  SHEET_ID: import.meta.env.VITE_GOOGLE_SHEET_ID || ''
+  SHEETS_API_ENDPOINT: import.meta.env.VITE_SHEETS_API_ENDPOINT || ''
 } as const;
 
 /**
@@ -57,12 +53,7 @@ export class GoogleFormsService {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          action: 'appendRow',
-          sheetId: SERVICE_CONFIG.SHEET_ID,
-          data: rowData,
-          sendEmail: true
-        })
+        body: JSON.stringify(data)
       });
 
       if (!response.ok) {
@@ -73,7 +64,7 @@ export class GoogleFormsService {
       
       return {
         type: 'success',
-        formId: SERVICE_CONFIG.FORM_ID,
+        formId: 'subsidy-form',
         responseId: result.responseId || crypto.randomUUID()
       };
     } catch (error) {

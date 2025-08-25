@@ -17,8 +17,8 @@ const queryClient = new QueryClient({
   }
 });
 
-// Google Client ID from environment variable
-const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
+// Check if Sheets API endpoint is configured
+const SHEETS_API_ENDPOINT = import.meta.env.VITE_SHEETS_API_ENDPOINT || '';
 
 const App: React.FC = () => {
   const handleSubmitSuccess = (responseId: string) => {
@@ -31,14 +31,9 @@ const App: React.FC = () => {
     alert(`エラーが発生しました: ${error.message}`);
   };
 
-  if (!GOOGLE_CLIENT_ID) {
-    return (
-      <div className="error-container">
-        <h1>設定エラー</h1>
-        <p>Google Client IDが設定されていません。</p>
-        <p>.envファイルにVITE_GOOGLE_CLIENT_IDを設定してください。</p>
-      </div>
-    );
+  // API endpoint check is optional - form can still function without it
+  if (!SHEETS_API_ENDPOINT) {
+    console.warn('Google Sheets API endpoint not configured. Form data will not be saved.');
   }
 
   return (
