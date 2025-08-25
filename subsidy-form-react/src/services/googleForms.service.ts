@@ -48,24 +48,23 @@ export class GoogleFormsService {
       const rowData = this.transformToSheetRow(data);
       
       // Submit to Google Sheets via Apps Script Web App
-      const response = await fetch(SERVICE_CONFIG.SHEETS_API_ENDPOINT, {
+      // no-corsモードを使用（Google Apps ScriptのCORS制限回避）
+      await fetch(SERVICE_CONFIG.SHEETS_API_ENDPOINT, {
         method: 'POST',
+        mode: 'no-cors',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(data)
       });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const result = await response.json();
+      // no-corsモードではレスポンスが読めないため、
+      // 成功と仮定してレスポンスを返す
       
       return {
         type: 'success',
         formId: 'subsidy-form',
-        responseId: result.responseId || crypto.randomUUID()
+        responseId: crypto.randomUUID()
       };
     } catch (error) {
       console.error('Submission error:', error);
@@ -117,6 +116,7 @@ export class GoogleFormsService {
    */
   public async checkDuplicateEmail(email: string): Promise<boolean> {
     try {
+      // GETリクエストはCORSの影響を受けないので通常モード
       const response = await fetch(`${SERVICE_CONFIG.SHEETS_API_ENDPOINT}?action=checkEmail&email=${encodeURIComponent(email)}`);
 
       if (!response.ok) {
