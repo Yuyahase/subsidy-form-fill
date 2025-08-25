@@ -56,11 +56,13 @@ export const subsidyFormSchema = z.object({
   secondaryAddress: addressSchema,
   
   employeeCount: z
-    .number()
-    .int({ message: '整数を入力してください' })
-    .min(2, { message: '労働者数は2名以上である必要があります' })
-    .max(300, { message: '労働者数は300名以下である必要があります' })
-    .default(2),
+    .string()
+    .min(1, { message: '労働者数を入力してください' })
+    .refine((val) => !val || /^\d+$/.test(val), { message: '数字で入力してください' })
+    .refine((val) => !val || (parseInt(val) >= 2 && parseInt(val) <= 300), { 
+      message: '2名以上300名以下で入力してください' 
+    })
+    .default(''),
   
   applicationMethod: z.enum([ApplicationMethods.PAPER, ApplicationMethods.ELECTRONIC])
     .describe('申請方法を選択してください')
@@ -123,10 +125,12 @@ export const subsidyFormSubmitSchema = z.object({
   }).optional(),
   
   employeeCount: z
-    .number({ invalid_type_error: '数値を入力してください' })
-    .int({ message: '整数を入力してください' })
-    .min(2, { message: '労働者数は2名以上である必要があります' })
-    .max(300, { message: '労働者数は300名以下である必要があります' }),
+    .string()
+    .min(1, { message: '労働者数を入力してください' })
+    .regex(/^\d+$/, { message: '数字で入力してください' })
+    .refine((val) => parseInt(val) >= 2 && parseInt(val) <= 300, { 
+      message: '2名以上300名以下で入力してください' 
+    }),
   
   applicationMethod: z.enum([ApplicationMethods.PAPER, ApplicationMethods.ELECTRONIC], {
     errorMap: () => ({ message: '申請方法を選択してください' })

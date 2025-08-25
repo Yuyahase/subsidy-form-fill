@@ -43,7 +43,7 @@ export const ShadcnSubsidyForm: React.FC<ShadcnSubsidyFormProps> = ({
     mode: 'onBlur',
     defaultValues: {
       entityType: '法人',
-      employeeCount: 2,
+      employeeCount: '',
       applicationMethod: '紙申請',
       company: {
         name: '',
@@ -199,7 +199,7 @@ export const ShadcnSubsidyForm: React.FC<ShadcnSubsidyFormProps> = ({
               )}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="text-sm text-gray-500">労働者数</div>
-                <div className="md:col-span-2 text-sm">{formData.employeeCount}名</div>
+                <div className="md:col-span-2 text-sm">{formData.employeeCount || '0'}名</div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="text-sm text-gray-500">申請方法</div>
@@ -587,10 +587,12 @@ export const ShadcnSubsidyForm: React.FC<ShadcnSubsidyFormProps> = ({
                       <Input
                         {...field}
                         id="employee-count"
-                        type="number"
-                        min="2"
-                        max="300"
-                        onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                        type="text"
+                        placeholder="例: 50"
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/[^0-9]/g, '');
+                          field.onChange(value);
+                        }}
                         className="w-32"
                       />
                       <span className="text-sm text-gray-700">名</span>

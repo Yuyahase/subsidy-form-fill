@@ -80,7 +80,7 @@ export interface SubsidyFormData {
   readonly representative: PersonName;
   readonly primaryAddress: Address;
   readonly secondaryAddress?: Partial<Address>;
-  readonly employeeCount: number;
+  readonly employeeCount: string;
   readonly applicationMethod: ApplicationMethod;
   readonly contact: PersonName & {
     readonly phone: PhoneNumber;
