@@ -2,5 +2,11 @@
   "buildCommand": "cd subsidy-form-react && npm install && npm run build",
   "outputDirectory": "subsidy-form-react/dist",
   "installCommand": "cd subsidy-form-react && npm install",
-  "framework": null
+  "framework": null,
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
 }
